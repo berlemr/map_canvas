@@ -1,0 +1,19 @@
+5 x 7 (ratio of A2 ~ 1.4)
+https://www.ikea.com/us/en/cat/picture-photo-frames-18746/?filters=measurements%3A5x7%20%22%245x7%20%22_frames
+
+300dpi -> 1500 x 2100
+
+
+8 x 10
+https://www.ikea.com/us/en/cat/picture-photo-frames-18746/?filters=measurements%3A8x10%20%22%248x10%20%22_frames
+
+300dpi -> 2400 x 3000
+
+9 x 9
+https://www.ikea.com/us/en/cat/picture-photo-frames-18746/?filters=measurements%3A9x9%20%22%249x9%20%22_frames
+
+300dpi -> 2700 x 2700
+
+A2 = 23.4 * 16.5 (scalable to a3, a4, a5) h/wratio ~1.4
+
+300dpi -> 7020 * 4950

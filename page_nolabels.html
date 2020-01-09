@@ -144,21 +144,6 @@
 							</div>
 						  </div>
 
-						  <div class="panel-heading">
-							<h4 class="panel-title">
-							  <a data-toggle="collapse" href="#label1">3. Labels</a>
-							</h4>
-						  </div>
-						  <div id="label1" class="panel-collapse collapse">
-							<div class="panel-body">
-								  <div class="form-check">
-									<input type="checkbox" class="form-check-input" id="noLabelsCheck1" onchange='handleCheckBoxChange(this);'>
-									<label class="form-check-label" for="noLavelsCheck1">No Labels</label>
-								  </div>
-								<input type="text" class="form-control input-sm" id="main_" onchange="setLabel('main_')"/>
-								<input type="text" class="form-control input-sm" id="caption_" onchange="setLabel('caption_')"/>
-							</div>
-						  </div>
 						  
 						  <div class="panel-heading">
 							<h4 class="panel-title">
@@ -265,8 +250,8 @@
 		canvas.width = 500;
 		canvas.height = 700;
 
-		mapDiv.style.width = canvas.width - 40;
-		mapDiv.style.height = canvas.height - 40; //!!!!!!!!!!!!!
+		mapDiv.style.width = canvas.width;
+		mapDiv.style.height = canvas.height; //!!!!!!!!!!!!!
 		mapCanvas.style.width = "100%";
 		mapCanvas.style.height = "100%";
 		map.resize();
@@ -315,98 +300,37 @@
 				
 				//for A2(23.4 in x 16.5in) @300 dpi we want 7020 * 4950
 				//for 9x9 @300dpi we want 2700 x 2700
-				factor = 9.5; //MULTIPLES SIZE OF IMAGE PIXELS
+				factor = 10; //MULTIPLES SIZE OF IMAGE PIXELS
 				
 				
 				console.log(img.height);
 				console.log(img.width);
 				
 				
-				if(noLabel == true){
-					canvas.height = (img.height + 80) * factor;
-					h_factor = img.height / (h - 40);
-				}
-				else {
-					canvas.height = img.height * (1 / 0.8) * factor;//!!!
-					h_factor = img.height / (h * 0.8)
-				}
+				canvas.height = img.height * factor;
+				h_factor = img.height / h ;
 				
 				
 				//F****g finally this sorts out the resolution issue on the map!!!!
-				canvas.width = (img.width * factor) + (40 * (img.width / w) * factor);//!!!
+				canvas.width = img.width * factor
 				//canvas.height = img.height * (1 / 0.8) * factor;//!!!
 				canvas.style.width = w;//!!!
-				
 				canvas.style.height = h;
 				
-				w_factor = img.width / (w + 40)
+				w_factor = img.width / w
 				//h_factor = img.height / (h * 0.8)
 				
-				ctx.drawImage(img,20 * w_factor * factor,20 * h_factor * factor,img.width * factor,img.height * factor);			
+				ctx.drawImage(img,0,0,img.width * factor,img.height * factor);			
 			};
-			
 			
 			ctx.globalCompositeOperation = 'destination-over'
 			
-			if(noLabel == false){
-				setLabel('main_',scale * factor);
-			}
-			//setLabel('main_',scale * factor);
-			//setLabel('caption_',scale);
+
 			ctx.fillStyle = my_themes[canvas_theme]['background_color'];
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
 			
 		};
 
-
-		function setLabel(label_div,size_scale=1){
-		
-			var x = document.getElementById(label_div);
-			if(x.value == ''){
-				x.value = 'unknown';
-			};
-			
-			if(label_div == 'main_'){
-				ht_adj = 0.85 * canvas.height;
-				//clear_ht = 50;
-				clear_ht = 70 * size_scale;
-				fill_ht = canvas.height * 0.9;
-				if(canvas_theme == 'mono'){
-					font_size = 30 * size_scale + 0.5;
-					label_font = font_size+"px 'Pacifico'";
-					font_col = "black";
-				}else{
-					font_size = 30 * size_scale + 0.5;
-					label_font = font_size+"px 'Oswald'";
-					font_col = "black";			
-				};
-			}
-			else{
-				ht_adj = 0.93 * canvas.height;
-				clear_ht = 40 * size_scale;
-				fill_ht = canvas.height * 0.95;
-				font_size = 12 * size_scale + 0.5;
-				if(canvas_theme == 'mono'){
-					label_font = font_size + "px 'Pacifico'";
-					font_col = "red";
-				}else{
-					label_font = font_size + "px 'Oswald'";
-					font_col = "red";
-				};
-			};
-			
-			ctx.clearRect(0,ht_adj,canvas.width,clear_ht);
-			ctx.font = label_font;
-			ctx.fillStyle = font_col;
-			ctx.textAlign = "center";	  
-			ctx.fillText(x.value, canvas.width/2, fill_ht);
-			
-			/////////////
-			ctx.fillStyle = my_themes[canvas_theme]['background_color'];
-			ctx.fillRect(0, 0, canvas.width, canvas.height);
-			
-			
-		};
 		
 		function handleCheckBoxChange(checkbox){
 			if(checkbox.checked == true){
@@ -441,15 +365,9 @@
 					canvas.height = 600;
 				}
 			
-			mapDiv.style.width = canvas.width - 40;
-			
-			if(noLabel == true){
-				mapDiv.style.height = canvas.height - 40;
-			}
-			else {
-				mapDiv.style.height = canvas.height * 0.8;
-			}
-			
+			mapDiv.style.width = canvas.width;
+			mapDiv.style.height = canvas.height ;
+
 			mapCanvas.style.width = "100%";
 			mapCanvas.style.height = "100%";
 			
