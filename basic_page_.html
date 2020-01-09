@@ -1,0 +1,464 @@
+<html>
+    <head>
+        <!-- required meta -->
+        <meta http-equiv="X-UA-Compatible" content="IE-edge">
+		<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+        <meta charset="utf-8">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+		<link href="https://fonts.googleapis.com/css?family=Pacifico&display=swap" rel="stylesheet"> 
+		<link href="https://fonts.googleapis.com/css?family=Oswald&display=swap" rel="stylesheet">
+		
+		<script src='https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.js'></script>
+		<link href='https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.css' rel='stylesheet' />
+		<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.4.2/mapbox-gl-geocoder.min.js"></script>
+		<link
+			rel="stylesheet"
+			href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.4.2/mapbox-gl-geocoder.css"
+			type="text/css"
+		/>
+		
+		
+		<style>
+			#map {
+			display:flex;
+				height:100%;
+				width:100%; 
+				transition: all 0.3s; 
+				position: absolute;
+				top: 20;
+								
+				margin-left: auto;
+				margin-right: auto;
+				left: 0;
+				right: 0;
+			}
+
+			.wrapper {
+				display: flex;
+				position: relative;
+
+				padding-left: 0;
+				padding-right: 0;				
+				margin-left: auto;
+				margin-right: auto;
+				
+				justify-content:center;
+				align-items:center;"
+				
+			}
+
+			.myCanvas {
+				padding-left: 0;
+				padding-right: 0;
+				margin-left: auto;
+				margin-right: auto;
+				display: block;				
+			}
+			.mapboxgl-canvas-container {
+				height: 100vh;
+			}
+			
+			canvas{
+			    image-rendering: optimizeSpeed;             // Older versions of FF
+				image-rendering: -moz-crisp-edges;          // FF 6.0+
+				image-rendering: -webkit-optimize-contrast; // Webkit (non standard naming)
+				image-rendering: -o-crisp-edges;            // OS X & Windows Opera (12.02+)
+				image-rendering: crisp-edges;               // Possible future browsers.
+				-ms-interpolation-mode: nearest-neighbor;   // IE (non standard naming)
+				
+			}
+		</style>
+
+
+        <title>custom map designer</title>
+		
+    </head>
+    <body>
+
+		<div class="container-fluid">
+		
+			<div class="row">
+				<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+					<a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Custom Map Art Editor</a>
+					<ul class="navbar-nav px-3">
+						<li class="nav-item text-nowrap">
+								<a class="nav-link" href="#">About</a>
+						</li>
+					</ul>
+				</nav>
+			</div>
+		
+		
+		<main role="main" class="flex-shrink-0">
+			
+			<div class="row">
+			
+				<div class="col-sm-8" style="background-color:#eeeeee;">
+					<br>
+					<br>
+					<div class="wrapper">
+						<canvas id="myCanvas" style="border:2px solid black;background-color:white;" ></canvas>
+						<div id='map'></div>
+					</div>
+					<br>
+				</div>        
+			
+
+				<div class="col-sm-4">
+					<br>
+					<br>							
+					
+					<div class="panel-group">
+						<div class="panel panel-default">
+						  
+						  <div class="panel-heading">
+							<h4 class="panel-title">
+							  <a data-toggle="collapse" href="#location1">1. Location</a>
+							</h4>
+						  </div>
+						  <div id="location1" class="panel-collapse collapse" >
+							<div class="panel-body">
+								<div id="geocoder" class="geocoder"></div>
+								<br>
+								<!--<div id='map'></div>-->
+							</div>
+						  </div>
+						  
+						  <div class="panel-heading">
+							<h4 class="panel-title">
+							  <a data-toggle="collapse" href="#style1">2. Style</a>
+							</h4>
+						  </div>
+						  <div id="style1" class="panel-collapse collapse">
+							<div class="panel-body">
+								<div class="btn-group">                    
+									<button type="button" class="btn btn-default" onClick="setTheme('mono')"><img src="images\mono_small.png" ></ button>
+									<button type="button" class="btn btn-default" onClick="setTheme('vintage')"><img src="images\digital_small.png"></ button>
+									<button type="button" class="btn btn-default" onClick="setTheme('standard')"><img src="images\vintage_small.png"></ button>
+								</div>
+							</div>
+						  </div>
+
+						  <div class="panel-heading">
+							<h4 class="panel-title">
+							  <a data-toggle="collapse" href="#label1">3. Labels</a>
+							</h4>
+						  </div>
+						  <div id="label1" class="panel-collapse collapse">
+							<div class="panel-body">
+								  <div class="form-check">
+									<input type="checkbox" class="form-check-input" id="noLabelsCheck1" onchange='handleCheckBoxChange(this);'>
+									<label class="form-check-label" for="noLavelsCheck1">No Labels</label>
+								  </div>
+								<input type="text" class="form-control input-sm" id="main_" onchange="setLabel('main_')"/>
+								<input type="text" class="form-control input-sm" id="caption_" onchange="setLabel('caption_')"/>
+							</div>
+						  </div>
+						  
+						  <div class="panel-heading">
+							<h4 class="panel-title">
+							  <a data-toggle="collapse" href="#layout1">4. Layout</a>
+							</h4>
+						  </div>
+						  <div id="layout1" class="panel-collapse collapse">
+							<div class="panel-body">
+								<div class="btn-group">
+									<button type="button" id="portrait_btn" class="btn btn-default" onClick="setLayout()"><img src="images\portrait.png" width="80" height="80"></button>
+									<button type="button" id="landscape_btn" class="btn btn-default" onClick="setLayout('landscape')"><img src="images\landscape.png" width="80" height="80">
+									</button>
+									<button type="button" id="square_btn" class="btn btn-default" onClick="setLayout('square')"><img src="images\square.png" width="80" height="80"></button>
+									
+								</div>
+							</div>
+						  </div>
+						  
+						  <div class="panel-heading">
+							<h4 class="panel-title">
+							  <a data-toggle="collapse" href="#finishing1">5. Finishing</a>
+							</h4>
+						  </div>
+						  <div id="finishing1" class="panel-collapse collapse">
+							<div class="panel-body">
+								<p>Nearly there! Just click on the eye to adjust map ratios</p>
+								<div class="btn-group">
+									<button type="button" id="fix" class="btn btn-default"><img src="images\sharpen.png" width="80" height="80"></ button>
+								</div>
+							</div>
+						  </div>
+						  
+						  
+						</div>
+					</div>
+					<br>
+					<button type="button" class="btn btn-success" onClick="render_image()">Generate Code</button>
+					<br>
+					<a id="download" download="myImage.jpg" href="" onclick="download_img(this);">Download to myImage.jpg</a>
+				</div>
+			</div>
+			</div>
+		</main>
+		
+
+		<footer class="footer mt-auto py-3" style="background-color:#343a40;">
+		  <div class="container">
+			<span class="text-muted">RenDog Design</span>
+		  </div>
+		</footer>
+		
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+		
+    </body>
+	
+	<script type="text/javascript">
+	
+		mapboxgl.accessToken = //ENTER ACCESS TOKEN
+	
+		$(document).ready(function() { 
+				$('#noLabelsCheck1').prop('checked', true);}
+			);
+
+		my_themes = {
+			'mono':{gradient_color:'transparent', background_color:'white',mb_theme:'v1/rberle01/ck4y2n2tz4g9a1cnt8w8fuxjy/draft'},
+			'vintage':{gradient_color:'transparent', background_color:'white',mb_theme:'/rberle01/ck53pvt5403q21csgt6kzwbv0/draft'},
+			'standard':{gradient_color:'transparent', background_color:'white',mb_theme:'/rberle01/ck53r7yn604sw1co2of5rxgqn/draft'}
+		};
+	
+	
+		var map = new mapboxgl.Map({
+			container: 'map',
+			style: 'mapbox://styles/mapbox/streets-v11',
+			preserveDrawingBuffer: true
+		});
+		
+		
+		var geocoder = new MapboxGeocoder({
+			accessToken: mapboxgl.accessToken,
+			mapboxgl: mapboxgl
+		});
+		
+		document.getElementById("geocoder").appendChild(geocoder.onAdd(map));
+	
+		var scale = 1; //default scale
+		var factor = 1;
+		var noLabel = true;
+		var canvas_layout = 'portrait'
+	
+		var canvas_theme = 'vintage';
+		var canvasId = 'myCanvas',
+		  canvas = document.getElementById(canvasId),
+		  ctx = canvas.getContext('2d'),
+		  grd;
+
+
+		var mapCanvas = document.getElementsByClassName('mapboxgl-canvas')[0];
+		var mapDiv = document.getElementById('map');			
+
+		canvas.width = 500;
+		canvas.height = 700;
+
+		mapDiv.style.width = canvas.width - 40;
+		mapDiv.style.height = canvas.height - 40; //!!!!!!!!!!!!!
+		mapCanvas.style.width = "100%";
+		mapCanvas.style.height = "100%";
+		map.resize();
+			
+	  
+		download_img = function(el) {
+		  var image = canvas.toDataURL("image/jpeg",1.0);
+		  console.log(el.href);
+		  el.href = image;
+		};
+
+	
+		map.on('load', function() {
+			var fixButton = document.getElementById('fix');
+			fixButton.onclick = function(){
+			map.resize();
+			}
+			});
+	
+	
+		function setTheme(theme,nomap=true){
+
+			canvas_theme = theme;
+			
+			//set MAPBOX theme
+			map.setStyle('mapbox://styles' + my_themes[canvas_theme]['mb_theme']);
+			
+			var canvasId = 'myCanvas',
+			canvas = document.getElementById(canvasId)
+			var ctx = canvas.getContext("2d");
+			
+			var w = canvas.width;
+			var h = canvas.height;
+
+			ctx.clearRect(0,0,w,h); //clear grid
+			
+			if(nomap == false){
+			
+				scale = window.devicePixelRatio; //pixel ratio of machine
+				
+				var img = map.getCanvas();
+				ctx.ImageSmoothingEnabled = false;
+				ctx.mozImageSmoothingEnabled = false;
+				ctx.webkitImageSmoothingEnabled = false;
+				
+				factor = 2; //MULTIPLES SIZE OF IMAGE PIXELS			
+				
+				if(noLabel == true){
+					canvas.height = (img.height + 80) * factor;
+					h_factor = img.height / (h - 40);
+				}
+				else {
+					canvas.height = img.height * (1 / 0.8) * factor;//!!!
+					h_factor = img.height / (h * 0.8)
+				}
+				
+				
+				//F****g finally this sorts out the resolution issue on the map!!!!
+				canvas.width = (img.width * factor) + (40 * (img.width / w) * factor);//!!!
+				//canvas.height = img.height * (1 / 0.8) * factor;//!!!
+				canvas.style.width = w;//!!!
+				
+				canvas.style.height = h;
+				
+				w_factor = img.width / (w + 40)
+				//h_factor = img.height / (h * 0.8)
+				
+				ctx.drawImage(img,20 * w_factor * factor,20 * h_factor * factor,img.width * factor,img.height * factor);			
+			};
+			
+			
+			////
+			console.log('--theme--')
+			console.log(canvas.width);
+			console.log(canvas.height);
+			console.log('----------')
+			////
+			
+			
+			ctx.globalCompositeOperation = 'destination-over'
+			
+			if(noLabel == false){
+				setLabel('main_',scale * factor);
+			}
+			//setLabel('main_',scale * factor);
+			//setLabel('caption_',scale);
+			ctx.fillStyle = my_themes[canvas_theme]['background_color'];
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			
+		};
+
+
+		function setLabel(label_div,size_scale=1){
+		
+			var x = document.getElementById(label_div);
+			if(x.value == ''){
+				x.value = 'unknown';
+			};
+			
+			if(label_div == 'main_'){
+				ht_adj = 0.85 * canvas.height;
+				//clear_ht = 50;
+				clear_ht = 70 * size_scale;
+				fill_ht = canvas.height * 0.9;
+				if(canvas_theme == 'mono'){
+					font_size = 30 * size_scale + 0.5;
+					label_font = font_size+"px 'Pacifico'";
+					font_col = "black";
+				}else{
+					font_size = 30 * size_scale + 0.5;
+					label_font = font_size+"px 'Oswald'";
+					font_col = "black";			
+				};
+			}
+			else{
+				ht_adj = 0.93 * canvas.height;
+				clear_ht = 40 * size_scale;
+				fill_ht = canvas.height * 0.95;
+				font_size = 12 * size_scale + 0.5;
+				if(canvas_theme == 'mono'){
+					label_font = font_size + "px 'Pacifico'";
+					font_col = "red";
+				}else{
+					label_font = font_size + "px 'Oswald'";
+					font_col = "red";
+				};
+			};
+			
+			ctx.clearRect(0,ht_adj,canvas.width,clear_ht);
+			ctx.font = label_font;
+			ctx.fillStyle = font_col;
+			ctx.textAlign = "center";	  
+			ctx.fillText(x.value, canvas.width/2, fill_ht);
+			
+			/////////////
+			ctx.fillStyle = my_themes[canvas_theme]['background_color'];
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			
+			
+		};
+		
+		function handleCheckBoxChange(checkbox){
+			if(checkbox.checked == true){
+				console.log('checked');
+				noLabel = true;
+			}else{
+				console.log('uncheckeed');
+				noLabel = false;
+			}
+			/////////////////////////
+			setLayout(canvas_layout);
+			setTheme(canvas_theme);
+		};
+		
+		function setLayout(style='portrait'){
+		
+			canvas_layout = style;
+			
+			//switch(style){
+			switch(canvas_layout){
+				case 'portrait':
+					canvas.width = 500;
+					canvas.height = 700;			
+					break;
+				case 'landscape':
+					canvas.width = 700;
+					canvas.height = 500;				
+					break;
+				case 'square':
+					canvas.width = 600;
+					//canvas.height = 560
+					canvas.height = 600;
+				}
+			
+			mapDiv.style.width = canvas.width - 40;
+			
+			if(noLabel == true){
+				mapDiv.style.height = canvas.height - 40;
+			}
+			else {
+				mapDiv.style.height = canvas.height * 0.8;
+			}
+			
+			mapCanvas.style.width = "100%";
+			mapCanvas.style.height = "100%";
+			
+			setTheme(canvas_theme);
+		};
+		
+		function render_image(){
+			setTheme(canvas_theme,false);
+		};	
+	
+    </script>
+	
+	
+</html>
